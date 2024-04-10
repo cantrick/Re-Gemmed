@@ -94,7 +94,7 @@ function processGemMove(newPos, initialPos)
         board:drawGemsOnBoard()
         table.insert(movingPositions, initialPos)
         table.insert(movingPositions, newPos)
-        
+        --test
         playdate.timer.performAfterDelay(2000, processGemMoveAfter, newPos, initialPos)
     end
 end
