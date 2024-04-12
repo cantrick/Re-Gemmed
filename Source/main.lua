@@ -68,11 +68,13 @@ function playdate.update()
             processMatches(newPos, initialPos)
             tools:removeAllTimers()
             playdate.timer.updateTimers()
+            board:cascadeGemsAfterMatch()
+            board:drawGemsOnBoard()
         end
     elseif gameState == 3 then
         --game over
     end
-
+    
     gfx.sprite.update()
     debug()
     playdate.timer.updateTimers()
@@ -82,10 +84,9 @@ function processMatches(newPos, initialPos)
     for i, match in ipairs(matches) do
         board:setGemAtPosition(0, match)
     end
-    --cascade down, recursive function
-        --board:cascadeGemsAfterMatch()
-        board:drawGemsOnBoard()
-        movingPositions = {}
+
+    board:drawGemsOnBoard()
+    movingPositions = {}
 end
 
 function processGemMove(newPos, initialPos)

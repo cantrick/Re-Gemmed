@@ -142,6 +142,7 @@ function Board:new()
                     else
                         isMatched = 1
                         matchedPos = {}
+                        break
                     end
                 end
                 if isMatched == num then
@@ -167,6 +168,7 @@ function Board:new()
                     else
                         isMatched = 1
                         matchedPos = {}
+                        break
                     end
                 end
                 if isMatched == num then
@@ -182,22 +184,35 @@ function Board:new()
         --check for T match
         --check for L match
         --check for 5 match
+        matches = self:checkForNumberMatch(5)
+        if matches ~= nil then return matches end
         --check for 4 match
+        matches = self:checkForNumberMatch(4)
+        if matches ~= nil then return matches end
         --check for 3 match
         matches = self:checkForNumberMatch(3)
+        if matches ~= nil then return matches end
+        
         return matches
     end
     
     function self:cascadeGemsAfterMatch()
-        print('cascading....')
-        for col = 2, self.COL_COUNT do
-            for row = 1, self.ROW_COUNT-2 do
-                if self.board[col][row] == 0 then
-                    print('we in:  '..col..','..row)
-                    self:swapValues({col, row}, {col-1, row})
+        tempPos = self:checkAboveZero()
+        while tempPos ~= 0 do
+            self:swapValues({tempPos[1], tempPos[2]}, {tempPos[1], tempPos[2]-1})
+            tempPos = self:checkAboveZero()
+        end
+    end
+    
+    function self:checkAboveZero()
+        for col = 1, self.COL_COUNT do
+            for row = 2, self.ROW_COUNT do
+                if self.board[col][row-1] ~= 0 and self.board[col][row] == 0 then
+                    return {col,row}
                 end
             end
         end
+        return 0
     end
     
     return self
