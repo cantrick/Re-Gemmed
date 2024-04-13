@@ -8,6 +8,7 @@ import 'cursor'
 import 'tools'
 
 local gfx <const> = playdate.graphics
+score = 0
 
 gameState = 2
 movingPositions = {}
@@ -69,6 +70,7 @@ function playdate.update()
             tools:removeAllTimers()
             playdate.timer.updateTimers()
             board:cascadeGemsAfterMatch()
+            board:fillEmptySpaces()
             board:drawGemsOnBoard()
         end
     elseif gameState == 3 then
@@ -156,6 +158,11 @@ function debug()
 
     --log if we are grabbing a gem or not
     gfx.drawText(cursor.grabbed, 28, 200)
+    
+    --temporarily show score like this....
+    --TODO: add this to GUI
+    gfx.drawText("score", 340, 10)
+    gfx.drawText(score, 350, 20)
     
     -- log the moving gems on the screen
     startY = 20

@@ -185,13 +185,21 @@ function Board:new()
         --check for L match
         --check for 5 match
         matches = self:checkForNumberMatch(5)
-        if matches ~= nil then return matches end
+        if matches ~= nil then 
+            score += 500
+            return matches 
+        end
         --check for 4 match
         matches = self:checkForNumberMatch(4)
-        if matches ~= nil then return matches end
-        --check for 3 match
+        if matches ~= nil then 
+            score += 400
+            return matches 
+        end        --check for 3 match
         matches = self:checkForNumberMatch(3)
-        if matches ~= nil then return matches end
+        if matches ~= nil then 
+            score += 300
+            return matches 
+        end
         
         return matches
     end
@@ -213,6 +221,16 @@ function Board:new()
             end
         end
         return 0
+    end
+    
+    function self:fillEmptySpaces()
+        for col = 1, self.COL_COUNT do
+            for row = 8, 1, -1 do
+                if self.board[col][row] == 0 then
+                    self.board[col][row] = math.random(1,7)
+                end
+            end
+        end
     end
     
     return self
