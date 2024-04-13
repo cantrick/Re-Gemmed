@@ -1,0 +1,4 @@
+*.pdx
+.vscode
+.nova
+.DS_Store
