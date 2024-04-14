@@ -118,7 +118,6 @@ function Board:new()
     end
 
     function self:setGemAtPosition(gem, pos)
-        print('setgem: '..pos[1]..','..pos[2])
         self.board[pos[1]][pos[2]] = gem
     end
     
@@ -146,7 +145,6 @@ function Board:new()
                     end
                 end
                 if isMatched == num then
-                    print("WE MATCH HORIZONTALLY")
                     return matchedPos
                 end
             end
@@ -172,17 +170,154 @@ function Board:new()
                     end
                 end
                 if isMatched == num then
-                    print("WE MATCH vertically")
                     return matchedPos
                 end
             end
         end
-         
+    end
+    
+    function self:checkForLMatch()
+        --four different positions for L match: normal, normal backwards, upside down, upside down backwards
+        --2 different loops to check. group backwards with its counterpart (nope, different bounds different loops baby)
+        --     []
+        --     []
+        --L is [][][]
+        -- 4 nested ifs??
+        matchedPos={}
+        for col = 1, self.COL_COUNT-2 do
+            for row = 1, self.ROW_COUNT-2 do
+                table.insert(matchedPos, {col,row})
+                if self.board[col][row] == self.board[col][row+1] then
+                    table.insert(matchedPos, {col,row+1})
+                    if self.board[col][row] == self.board[col][row+2] then
+                        table.insert(matchedPos, {col,row+2})
+                        if self.board[col][row] == self.board[col+1][row+2] then
+                            table.insert(matchedPos, {col+1,row+2})
+                            if self.board[col][row] == self.board[col+2][row+2] then
+                                print("L MATCH NORMAL (down-right)")
+                                table.insert(matchedPos, {col+2,row+2})
+                                return matchedPos
+                            else
+                                matchedPos = {}
+                            end
+                        else
+                            matchedPos = {}
+                        end
+                    else
+                        matchedPos = {}
+                    end
+                else
+                    matchedPos = {}
+                end
+            end
+        end
+        
+        matchedPos={}
+        for col = 3, self.COL_COUNT do
+            for row = 1, self.ROW_COUNT-2 do
+                table.insert(matchedPos, {col,row})
+                if self.board[col][row] == self.board[col][row+1] then
+                    table.insert(matchedPos, {col,row+1})
+                    if self.board[col][row] == self.board[col][row+2] then
+                        table.insert(matchedPos, {col,row+2})
+                        if self.board[col][row] == self.board[col-1][row+2] then
+                            table.insert(matchedPos, {col-1,row+2})
+                            if self.board[col][row] == self.board[col-2][row+2] then
+                                print("L MATCH BACKWARDS (Down-left)")
+                                table.insert(matchedPos, {col-2,row+2})
+                                return matchedPos
+                            else
+                                matchedPos = {}
+                            end
+                        else
+                            matchedPos = {}
+                        end
+                    else
+                        matchedPos = {}
+                    end
+                else
+                    matchedPos = {}
+                end
+            end
+        end
+        
+        matchedPos={}
+        for col = 1, self.COL_COUNT-2 do
+            for row = 1, self.ROW_COUNT-2 do
+                table.insert(matchedPos, {col,row})
+                if self.board[col][row] == self.board[col+1][row] then
+                    table.insert(matchedPos, {col+1,row})
+                    if self.board[col][row] == self.board[col+2][row] then
+                        table.insert(matchedPos, {col+2,row})
+                        if self.board[col][row] == self.board[col+2][row+1] then
+                            table.insert(matchedPos, {col+2,row+1})
+                            if self.board[col][row] == self.board[col+2][row+2] then
+                                print("L MATCH upsidedown (right-down)")
+                                table.insert(matchedPos, {col+2,row+2})
+                                return matchedPos
+                            else
+                                matchedPos = {}
+                            end
+                        else
+                            matchedPos = {}
+                        end
+                    else
+                        matchedPos = {}
+                    end
+                else
+                    matchedPos = {}
+                end
+            end
+        end
+        
+        matchedPos={}
+        for col = 1, self.COL_COUNT-2 do
+            for row = 3, self.ROW_COUNT do
+                table.insert(matchedPos, {col,row})
+                if self.board[col][row] == self.board[col][row-1] then
+                    table.insert(matchedPos, {col,row-1})
+                    if self.board[col][row] == self.board[col][row-2] then
+                        table.insert(matchedPos, {col,row-2})
+                        if self.board[col][row] == self.board[col+1][row-2] then
+                            table.insert(matchedPos, {col+1,row-2})
+                            if self.board[col][row] == self.board[col+2][row-2] then
+                                print("L MATCH upsidedown backwards (left-down)")
+                                table.insert(matchedPos, {col+2,row-2})
+                                return matchedPos
+                            else
+                                matchedPos = {}
+                            end
+                        else
+                            matchedPos = {}
+                        end
+                    else
+                        matchedPos = {}
+                    end
+                else
+                    matchedPos = {}
+                end
+            end
+        end
+
+    end
+    
+    function self:checkForTMatch()
+        
     end
     
     function self:checkForMatches()
         --check for T match
+        matches = self:checkForTMatch()
+        if matches ~= nil then 
+            score += 1000
+            return matches 
+        end
         --check for L match
+        matches = self:checkForLMatch()
+        if matches ~= nil then 
+            score += 750
+            return matches 
+        end
         --check for 5 match
         matches = self:checkForNumberMatch(5)
         if matches ~= nil then 
