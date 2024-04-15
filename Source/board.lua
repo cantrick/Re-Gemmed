@@ -302,10 +302,126 @@ function Board:new()
     end
     
     function self:checkForTMatch()
+        matchedPos={}
+        for col = 1, self.COL_COUNT-2 do
+            for row = 1, self.ROW_COUNT-2 do
+                table.insert(matchedPos, {col,row})
+                if self.board[col][row] == self.board[col+1][row] then
+                    table.insert(matchedPos, {col+1,row})
+                    if self.board[col][row] == self.board[col+2][row] then
+                        table.insert(matchedPos, {col+2,row})
+                        if self.board[col][row] == self.board[col+1][row+1] then
+                            table.insert(matchedPos, {col+1,row+1})
+                            if self.board[col][row] == self.board[col+1][row+2] then
+                                print("T MATCH NORMAL (point down)")
+                                table.insert(matchedPos, {col+1,row+2})
+                                return matchedPos
+                            else
+                                matchedPos = {}
+                            end
+                        else
+                            matchedPos = {}
+                        end
+                    else
+                        matchedPos = {}
+                    end
+                else
+                    matchedPos = {}
+                end
+            end
+        end
+        
+        matchedPos={}
+        for col = 1, self.COL_COUNT-2 do
+            for row = 8, 3, -1 do
+                table.insert(matchedPos, {col,row})
+                if self.board[col][row] == self.board[col+1][row] then
+                    table.insert(matchedPos, {col+1,row})
+                    if self.board[col][row] == self.board[col+2][row] then
+                        table.insert(matchedPos, {col+2,row})
+                        if self.board[col][row] == self.board[col+1][row-1] then
+                            table.insert(matchedPos, {col+1,row-1})
+                            if self.board[col][row] == self.board[col+1][row-2] then
+                                print("T MATCH upsidedown (point up)")
+                                table.insert(matchedPos, {col+1,row-2})
+                                return matchedPos
+                            else
+                                matchedPos = {}
+                            end
+                        else
+                            matchedPos = {}
+                        end
+                    else
+                        matchedPos = {}
+                    end
+                else
+                    matchedPos = {}
+                end
+            end
+        end
+        
+        matchedPos={}
+        for col = 1, self.COL_COUNT-2 do
+            for row = 1, self.ROW_COUNT-2 do
+                table.insert(matchedPos, {col,row})
+                if self.board[col][row] == self.board[col][row+1] then
+                    table.insert(matchedPos, {col,row+1})
+                    if self.board[col][row] == self.board[col][row+2] then
+                        table.insert(matchedPos, {col,row+2})
+                        if self.board[col][row] == self.board[col+1][row+1] then
+                            table.insert(matchedPos, {col+1,row+1})
+                            if self.board[col][row] == self.board[col+2][row+1] then
+                                print("T MATCH right (point right)")
+                                table.insert(matchedPos, {col+2,row+1})
+                                return matchedPos
+                            else
+                                matchedPos = {}
+                            end
+                        else
+                            matchedPos = {}
+                        end
+                    else
+                        matchedPos = {}
+                    end
+                else
+                    matchedPos = {}
+                end
+            end
+        end
+        
+        matchedPos={}
+        for col = 8, 3, -1 do
+            for row = 1, self.ROW_COUNT-2 do
+                table.insert(matchedPos, {col,row})
+                if self.board[col][row] == self.board[col][row+1] then
+                    table.insert(matchedPos, {col,row+1})
+                    if self.board[col][row] == self.board[col][row+2] then
+                        table.insert(matchedPos, {col,row+2})
+                        if self.board[col][row] == self.board[col-1][row+1] then
+                            table.insert(matchedPos, {col-1,row+1})
+                            if self.board[col][row] == self.board[col-2][row+1] then
+                                print("T MATCH left (point left)")
+                                table.insert(matchedPos, {col-2,row+1})
+                                return matchedPos
+                            else
+                                matchedPos = {}
+                            end
+                        else
+                            matchedPos = {}
+                        end
+                    else
+                        matchedPos = {}
+                    end
+                else
+                    matchedPos = {}
+                end
+            end
+        end
         
     end
     
     function self:checkForMatches()
+        --TODO: add POWER gems and what not, we can spawn them here probably?? might need to do after match tho.. so maybe return specialGem variable for different types of gems
         --check for T match
         matches = self:checkForTMatch()
         if matches ~= nil then 
