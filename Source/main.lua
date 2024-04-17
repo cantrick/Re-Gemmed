@@ -64,9 +64,20 @@ function playdate.update()
         end
         
         gemMove(tempPos)
-        matches = board:checkForMatches()
+        matches,specialGem,special = board:checkForMatches()
+        
+        
         if matches ~= nil then
             processMatches(newPos, initialPos)
+            -- logic for creating special gems
+            if specialGem ~= "none" then
+                board:setGemAtPosition(specialGem, matches[3])
+            end
+            -- run logic for using special gems
+            if special ~= nil and #special ~= 0 then 
+                processSpecials(special)
+                special = ""
+            end
             tools:removeAllTimers()
             playdate.timer.updateTimers()
             board:cascadeGemsAfterMatch()
@@ -89,6 +100,18 @@ function processMatches(newPos, initialPos)
 
     board:drawGemsOnBoard()
     movingPositions = {}
+end
+
+function processSpecials(specialString)
+    for i = 1, #specialString do
+        local char = specialString:sub(i,i)
+        
+        if char == "P" then
+            print("POWER")
+        elseif char == "S" then
+            print("STAR")
+        end
+    end
 end
 
 function processGemMove(newPos, initialPos)

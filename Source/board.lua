@@ -128,6 +128,7 @@ function Board:new()
     function self:checkForNumberMatch(num)
         isMatched = 1
         matchedPos = {}
+        special = ""
         --horizontal matches
         for col = 1, self.COL_COUNT-(num-1) do
             if isMatched == num then break end
@@ -135,17 +136,28 @@ function Board:new()
                 toMatch = self.board[col][row]
                 table.insert(matchedPos, {col,row})
                 for i=1, num-1 do
-                    if toMatch == self.board[col+i][row] and toMatch ~= 0 then
+                    if string.find(toMatch,string.sub(self.board[col+i][row],1,1)) and toMatch ~= 0 then
                         isMatched += 1
-                        table.insert(matchedPos, {col+i,row})   
+                        table.insert(matchedPos, {col+i,row})
+                        -- check if we have a special gem
+                        if not string.find(special,"P") then
+                            if string.find(toMatch,"P") then special = special.."P" end
+                            if string.find(self.board[col+i][row],"P") then special = special.."P" end
+                        end
+                        
+                        if not string.find(special,"S") then
+                            if string.find(toMatch,"S") then special = special.."S" end
+                            if string.find(self.board[col+i][row],"S") then special = special.."S" end
+                        end
                     else
                         isMatched = 1
                         matchedPos = {}
+                        special = ""
                         break
                     end
                 end
                 if isMatched == num then
-                    return matchedPos
+                    return matchedPos,toMatch,special
                 end
             end
         end 
@@ -153,6 +165,7 @@ function Board:new()
         
         matchedPos={}
         isMatched = 1
+        special = ""
         --vertical matches
         for col = 1, self.COL_COUNT do
             if isMatched == num then break end
@@ -160,17 +173,27 @@ function Board:new()
                 toMatch = self.board[col][row]
                 table.insert(matchedPos, {col,row})
                 for i=1, num-1 do
-                    if toMatch == self.board[col][row+i] and toMatch ~= 0 then
+                    if string.find(toMatch,string.sub(self.board[col][row+i],1,1)) and toMatch ~= 0 then
                         isMatched += 1
                         table.insert(matchedPos, {col,row+i})
+                        if not string.find(special,"P") then
+                            if string.find(toMatch,"P") then special = special.."P" end
+                            if string.find(self.board[col][row+i],"P") then special = special.."P" end
+                        end
+                        
+                        if not string.find(special,"S") then
+                            if string.find(toMatch,"S") then special = special.."S" end
+                            if string.find(self.board[col][row+i],"S") then special = special.."S" end
+                        end
                     else
                         isMatched = 1
                         matchedPos = {}
+                        special = ""
                         break
                     end
                 end
                 if isMatched == num then
-                    return matchedPos
+                    return matchedPos,toMatch,special
                 end
             end
         end
@@ -196,7 +219,7 @@ function Board:new()
                             if self.board[col][row] == self.board[col+2][row+2] then
                                 print("L MATCH NORMAL (down-right)")
                                 table.insert(matchedPos, {col+2,row+2})
-                                return matchedPos
+                                return matchedPos,self.board[col][row]
                             else
                                 matchedPos = {}
                             end
@@ -225,7 +248,7 @@ function Board:new()
                             if self.board[col][row] == self.board[col-2][row+2] then
                                 print("L MATCH BACKWARDS (Down-left)")
                                 table.insert(matchedPos, {col-2,row+2})
-                                return matchedPos
+                                return matchedPos,self.board[col][row]
                             else
                                 matchedPos = {}
                             end
@@ -254,7 +277,7 @@ function Board:new()
                             if self.board[col][row] == self.board[col+2][row+2] then
                                 print("L MATCH upsidedown (right-down)")
                                 table.insert(matchedPos, {col+2,row+2})
-                                return matchedPos
+                                return matchedPos,self.board[col][row]
                             else
                                 matchedPos = {}
                             end
@@ -283,7 +306,7 @@ function Board:new()
                             if self.board[col][row] == self.board[col+2][row-2] then
                                 print("L MATCH upsidedown backwards (left-down)")
                                 table.insert(matchedPos, {col+2,row-2})
-                                return matchedPos
+                                return matchedPos,self.board[col][row]
                             else
                                 matchedPos = {}
                             end
@@ -315,7 +338,7 @@ function Board:new()
                             if self.board[col][row] == self.board[col+1][row+2] then
                                 print("T MATCH NORMAL (point down)")
                                 table.insert(matchedPos, {col+1,row+2})
-                                return matchedPos
+                                return matchedPos,self.board[col][row]
                             else
                                 matchedPos = {}
                             end
@@ -344,7 +367,7 @@ function Board:new()
                             if self.board[col][row] == self.board[col+1][row-2] then
                                 print("T MATCH upsidedown (point up)")
                                 table.insert(matchedPos, {col+1,row-2})
-                                return matchedPos
+                                return matchedPos,self.board[col][row]
                             else
                                 matchedPos = {}
                             end
@@ -373,7 +396,7 @@ function Board:new()
                             if self.board[col][row] == self.board[col+2][row+1] then
                                 print("T MATCH right (point right)")
                                 table.insert(matchedPos, {col+2,row+1})
-                                return matchedPos
+                                return matchedPos,self.board[col][row]
                             else
                                 matchedPos = {}
                             end
@@ -402,7 +425,7 @@ function Board:new()
                             if self.board[col][row] == self.board[col-2][row+1] then
                                 print("T MATCH left (point left)")
                                 table.insert(matchedPos, {col-2,row+1})
-                                return matchedPos
+                                return matchedPos,self.board[col][row]
                             else
                                 matchedPos = {}
                             end
@@ -423,36 +446,37 @@ function Board:new()
     function self:checkForMatches()
         --TODO: add POWER gems and what not, we can spawn them here probably?? might need to do after match tho.. so maybe return specialGem variable for different types of gems
         --check for T match
-        matches = self:checkForTMatch()
+        matches,gemType = self:checkForTMatch()
         if matches ~= nil then 
             score += 1000
-            return matches 
+            return matches,gemType.."S"
         end
         --check for L match
-        matches = self:checkForLMatch()
+        matches,gemType = self:checkForLMatch()
         if matches ~= nil then 
             score += 750
-            return matches 
+            return matches,gemType.."S"
         end
         --check for 5 match
-        matches = self:checkForNumberMatch(5)
+        matches,gemType,special = self:checkForNumberMatch(5)
         if matches ~= nil then 
             score += 500
-            return matches 
+            return matches,"Q",special
         end
         --check for 4 match
-        matches = self:checkForNumberMatch(4)
+        matches,gemType,special = self:checkForNumberMatch(4)
         if matches ~= nil then 
             score += 400
-            return matches 
-        end        --check for 3 match
-        matches = self:checkForNumberMatch(3)
+            return matches,gemType.."P",special
+        end        
+        --check for 3 match
+        matches,gemType,special = self:checkForNumberMatch(3)
         if matches ~= nil then 
             score += 300
-            return matches 
+            return matches,"none",special
         end
         
-        return matches
+        return matches,"none",""
     end
     
     function self:cascadeGemsAfterMatch()
