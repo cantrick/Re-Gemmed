@@ -71,12 +71,37 @@ function playdate.update()
             processMatches(newPos, initialPos)
             -- logic for creating special gems
             if specialGem ~= "none" then
+                --arbitrarily set the special gem to spawn at the position of the 3rd element in the match? who cares!
                 board:setGemAtPosition(specialGem, matches[3])
             end
             -- run logic for using special gems
             if special ~= nil and #special ~= 0 then 
-                processSpecials(special)
+                chainReactions = processSpecials(special,matches[3])
                 special = ""
+                if chainReactions ~= nil then
+                    for i=1,#chainReactions do
+                        if string.match(chainReactions[i][2],"P") then
+                           special = special.."P" 
+                        end
+                        if string.match(chainReactions[i][2],"S") then
+                           special = special.."S" 
+                        end
+                    end
+                end
+                
+                while string.match(special, "S") or string.match(special,"P") do
+                    chainReactions = processSpecials(special, chainReactions[1][1])
+                    special = ""
+                    if chainReactions == nil then break end
+                    for i=1,#chainReactions do
+                        if string.match(chainReactions[i][2],"P") then
+                           special = special.."P" 
+                        end
+                        if string.match(chainReactions[i][2],"S") then
+                           special = special.."S" 
+                        end
+                    end
+                end
             end
             tools:removeAllTimers()
             playdate.timer.updateTimers()
@@ -102,12 +127,65 @@ function processMatches(newPos, initialPos)
     movingPositions = {}
 end
 
-function processSpecials(specialString)
+function processChainReaction(tempPos, chainReactions)
+    if string.match(board:getGemFromPosition(tempPos),"P") then
+       table.insert(chainReactions,{tempPos,"P"})
+    end
+    if string.match(board:getGemFromPosition(tempPos),"S") then
+        table.insert(chainReactions,{tempPos,"S"})
+    end
+    board:setGemAtPosition(0, tempPos)
+    scoreMod += 0.01
+end
+
+function processSpecials(specialString,pos)
+    scoreMod = 1.00
+    chainReactions = {}
     for i = 1, #specialString do
         local char = specialString:sub(i,i)
         
         if char == "P" then
-            print("POWER")
+            -- top row
+            if pos[1]-1 >= 1 then
+                if pos[2]-1 >= 1 then
+                    tempPos = {pos[1]-1,pos[2]-1}
+                    processChainReaction(tempPos, chainReactions)
+                end
+                if pos[2]+1 <= 8 then
+                    tempPos = {pos[1]-1,pos[2]+1}
+                    processChainReaction(tempPos, chainReactions)
+                end
+                tempPos = {pos[1]-1,pos[2]}
+                processChainReaction(tempPos, chainReactions)
+            end
+            
+            -- bottom row
+            if pos[1]+1 <= 8 then
+                if pos[2]-1 >= 1 then
+                    tempPos = {pos[1]+1,pos[2]-1}
+                    processChainReaction(tempPos, chainReactions)
+                end
+                if pos[2]+1 <= 8 then
+                    tempPos = {pos[1]+1,pos[2]+1}
+                    processChainReaction(tempPos, chainReactions)
+                end
+                tempPos = {pos[1]+1,pos[2]}
+                processChainReaction(tempPos, chainReactions)
+            end
+            
+            -- middle row
+            if pos[2]-1 >= 1 then
+                tempPos = {pos[1],pos[2]-1}
+                processChainReaction(tempPos, chainReactions)
+            end
+            if pos[2]+1 <= 8 then
+                tempPos = {pos[1],pos[2]+1}
+                processChainReaction(tempPos, chainReactions)
+            end
+            processChainReaction(pos, chainReactions)
+            score += score * scoreMod
+            score = math.floor(score)
+            return chainReactions
         elseif char == "S" then
             print("STAR")
         end
