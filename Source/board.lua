@@ -444,7 +444,6 @@ function Board:new()
     end
     
     function self:checkForMatches()
-        --TODO: add POWER gems and what not, we can spawn them here probably?? might need to do after match tho.. so maybe return specialGem variable for different types of gems
         --check for T match
         matches,gemType = self:checkForTMatch()
         if matches ~= nil then 

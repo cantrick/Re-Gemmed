@@ -135,11 +135,11 @@ function processChainReaction(tempPos, chainReactions)
         table.insert(chainReactions,{tempPos,"S"})
     end
     board:setGemAtPosition(0, tempPos)
-    scoreMod += 0.01
+    scoreMod += 0.03
 end
 
 function processSpecials(specialString,pos)
-    scoreMod = 1.00
+    scoreMod = 0.00
     chainReactions = {}
     for i = 1, #specialString do
         local char = specialString:sub(i,i)
@@ -183,11 +183,16 @@ function processSpecials(specialString,pos)
                 processChainReaction(tempPos, chainReactions)
             end
             processChainReaction(pos, chainReactions)
-            score += score * scoreMod
+            score += 2400 * scoreMod
             score = math.floor(score)
             return chainReactions
         elseif char == "S" then
-            print("STAR")
+            for i=1, 8 do
+                board:setGemAtPosition(0, {pos[1],i})
+                board:setGemAtPosition(0, {i,pos[1]})
+            end
+            score += 5000
+            return chainReactions
         end
     end
 end
