@@ -215,6 +215,26 @@ function processGemMoveAfter(newPos, initialPos)
     tools:removeFromList(movingPositions, newPos)
 end
 
+function processQuantumGem(initialPos, newPos)
+    gemToEliminate = board:getGemFromPosition(newPos)
+    scoreMultiplier = 0
+    for i = 1, 8 do
+        for j = 1, 8 do
+            if board:getGemFromPosition({i,j}) == gemToEliminate then
+                board:setGemAtPosition(0, {i,j})
+                scoreMultiplier += 0.11
+            end
+        end
+    end
+    board:setGemAtPosition(0, initialPos)
+    score += 5000 * scoreMultiplier
+    score = math.floor(score)
+    board:cascadeGemsAfterMatch()
+    board:fillEmptySpaces()
+    board:drawGemsOnBoard()
+    -- gonna need to process chain reactions here too, maybe store those positions in a list and process them like that
+end
+
 function gemMove(initialPos)
     if tools:isPosInList(movingPositions, initialPos) then
         cursor.grabbed = 0
@@ -223,32 +243,49 @@ function gemMove(initialPos)
     if cursor.grabbed == 1 then
         if playdate.buttonJustPressed(playdate.kButtonDown) then
             if initialPos[2] < 8 then
-                newPos = {cursor.position[1],cursor.position[2]+1}
-                processGemMove(newPos, initialPos)
+                if board:getGemFromPosition(initialPos) == "Q" then
+                    processQuantumGem(initialPos, {initialPos[1],initialPos[2]+1})
+                else
+                    newPos = {cursor.position[1],cursor.position[2]+1}
+                    processGemMove(newPos, initialPos)
+                end
+                
             end
             cursor.grabbed = 0
         end
     
         if playdate.buttonJustPressed(playdate.kButtonUp) then
             if initialPos[2] > 1 then
-                newPos = {cursor.position[1],cursor.position[2]-1}
-                processGemMove(newPos, initialPos)
+                if board:getGemFromPosition(initialPos) == "Q" then
+                    processQuantumGem(initialPos, {initialPos[1],initialPos[2]-1})
+                else
+                    newPos = {cursor.position[1],cursor.position[2]-1}
+                    processGemMove(newPos, initialPos)
+                end
             end
             cursor.grabbed = 0
         end
 
         if playdate.buttonJustPressed(playdate.kButtonLeft) then
             if initialPos[1] > 1 then
-                newPos = {cursor.position[1]-1,cursor.position[2]}
-                processGemMove(newPos, initialPos)
+                if board:getGemFromPosition(initialPos) == "Q" then
+                    processQuantumGem(initialPos, {initialPos[1]-1,initialPos[2]})
+                else
+                    newPos = {cursor.position[1]-1,cursor.position[2]}
+                    processGemMove(newPos, initialPos)
+                end
             end
             cursor.grabbed = 0
         end
 
         if playdate.buttonJustPressed(playdate.kButtonRight) then
             if initialPos[1] < 8 then
-                newPos = {cursor.position[1]+1,cursor.position[2]}
-                processGemMove(newPos, initialPos)
+                if board:getGemFromPosition(initialPos) == "Q" then
+                    processQuantumGem(initialPos, {initialPos[1]+1,initialPos[2]})
+                else
+                    newPos = {cursor.position[1]+1,cursor.position[2]}
+                    processGemMove(newPos, initialPos)
+                end
             end
             cursor.grabbed = 0
         end
